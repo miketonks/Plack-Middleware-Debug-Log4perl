@@ -3,8 +3,6 @@ use strict;
 
 package Plack::Middleware::Debug::Log4perl;
 
-#use Time::HiRes;
-
 use parent qw(Plack::Middleware::Debug::Base);
 
 sub run
@@ -16,7 +14,6 @@ sub run
 
 		$panel->nav_subtitle('Debug');
 
-		#my $log = $BookBank::Application::z_debug_log;
 		my $log = $ENV{'plack.middleware.debug.log4perl_debug_log'};
 
 		if ($log) {
@@ -25,7 +22,8 @@ sub run
 		}
 		else {
 
-			return $panel->disable;
+			#return $panel->disable;
+			$panel->content( 'Log4perl appender not enabled' );
 		}
 	};
 }
