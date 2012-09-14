@@ -40,24 +40,17 @@ sub run
 
 		#$panel->nav_subtitle('Debug');
 
-#		my $log = $ENV{'plack.middleware.debug.log4perl_debug_log'};
 		my $log = Log::Log4perl->appender_by_name('plack_debug_panel')->buffer();
 
 		if ($log) {
 
-warn "LOG: " . Dumper($log);
-
 			$log = [split " >> ", $log];
-
-warn "LOG2: " . Dumper($log);
 
 #			foreach my $line (@$log) {
 #				
 #				$line = [split ' >> ', $line];
 #			}
 #
-#warn "LOG3: " . Dumper($log);
-		
 			$panel->content( sub { $self->render_list_pairs($log) } );
 		}
 		else {
