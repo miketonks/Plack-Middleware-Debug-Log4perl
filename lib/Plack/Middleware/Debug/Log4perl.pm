@@ -5,17 +5,37 @@ package Plack::Middleware::Debug::Log4perl;
 
 use parent qw(Plack::Middleware::Debug::Base);
 
+use Log::Log4perl;
+use Log::Log4perl::Layout;
+use Log::Log4perl::Level;
+
 sub run
 {
 	my($self, $env, $panel) = @_;
+
+    my $logger = Log::Log4perl->get_logger("");
+
+    # Define a layout
+    my $layout = Log::Log4perl::Layout::PatternLayout->new("[%r] >> %F >> %L >> %m%n");
+
+    # Define a file appender
+    my $appender = Log::Log4perl::Appender->new(
+                          "Log::Log4perl::Appender::TestBuffer",
+                          name      => "plack_debug_panel");
+
+	$appender->layout($layout);
+
+	$logger->add_appender($appender);
+	$logger->level($TRACE);
 
 	return sub {
 		my $res = shift;
 
 		#$panel->nav_subtitle('Debug');
 
-		my $log = $ENV{'plack.middleware.debug.log4perl_debug_log'};
-
+#		my $log = $ENV{'plack.middleware.debug.log4perl_debug_log'};
+		my $log = Log::Log4perl->appender_by_name('plack_debug_panel')->buffer();
+		
 		if ($log) {
 
 			$panel->content( sub { $self->render_list_pairs($log) } );
