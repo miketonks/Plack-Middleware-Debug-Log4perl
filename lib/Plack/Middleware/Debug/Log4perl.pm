@@ -5,28 +5,35 @@ package Plack::Middleware::Debug::Log4perl;
 
 use parent qw(Plack::Middleware::Debug::Base);
 
-use Log::Log4perl;
+use Log::Log4perl qw(get_logger :levels);
 use Log::Log4perl::Layout;
 use Log::Log4perl::Level;
+
+use Data::Dumper;
 
 sub run
 {
 	my($self, $env, $panel) = @_;
 
-    my $logger = Log::Log4perl->get_logger("");
-
-    # Define a layout
-    my $layout = Log::Log4perl::Layout::PatternLayout->new("[%r] >> %F >> %L >> %m%n");
-
-    # Define a file appender
-    my $appender = Log::Log4perl::Appender->new(
-                          "Log::Log4perl::Appender::TestBuffer",
-                          name      => "plack_debug_panel");
-
-	$appender->layout($layout);
-
-	$logger->add_appender($appender);
-	$logger->level($TRACE);
+	if(Log::Log4perl->initialized() && !Log::Log4perl->appender_by_name('plack_debug_panel')) {
+	
+	    my $logger = Log::Log4perl->get_logger("");
+	
+	    # Define a layout
+	    my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L >> ");
+	
+	    # Define an 'in memory' appender
+	    my $appender = Log::Log4perl::Appender->new(
+	    	"Log::Log4perl::Appender::TestBuffer", 
+	    	name => "plack_debug_panel");
+	
+		$appender->layout($layout);
+	
+		$logger->add_appender($appender);
+		$logger->level($TRACE);
+		
+		warn "test";
+	}
 
 	return sub {
 		my $res = shift;
@@ -35,9 +42,22 @@ sub run
 
 #		my $log = $ENV{'plack.middleware.debug.log4perl_debug_log'};
 		my $log = Log::Log4perl->appender_by_name('plack_debug_panel')->buffer();
-		
+
 		if ($log) {
 
+warn "LOG: " . Dumper($log);
+
+			$log = [split " >> ", $log];
+
+warn "LOG2: " . Dumper($log);
+
+#			foreach my $line (@$log) {
+#				
+#				$line = [split ' >> ', $line];
+#			}
+#
+#warn "LOG3: " . Dumper($log);
+		
 			$panel->content( sub { $self->render_list_pairs($log) } );
 		}
 		else {

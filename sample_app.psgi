@@ -12,7 +12,7 @@ use Plack::Middleware::Debug::Log4perl;
 my $app = sub {
 	my $logger = Log::Log4perl->get_logger('sample.app');
 	$logger->info("Starting Up");
-	for my $i (1..20) {
+	for my $i (1..10) {
 		$logger->debug("Testing .... ($i)");
 	}
 	$logger->info("All done here - thanks for vising");
