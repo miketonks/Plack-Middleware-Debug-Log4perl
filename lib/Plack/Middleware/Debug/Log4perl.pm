@@ -105,9 +105,11 @@ Plack debug panel to show detailed Log4perl debug messages.
 =head1 SYNOPSIS
 
   use Plack::Builder;
+  use Plack::Middleware::Debug::Log4perl;
 
   builder {
-    enable 'Debug', panels => [qw/Log4perl/];
+    enable 'Debug', panels => [qw/Memory Timer Log4perl/];
+	enable 'Log4perl', category => 'plack', conf => \$log4perl_conf;
     $app;
   };
 
@@ -115,13 +117,15 @@ Plack debug panel to show detailed Log4perl debug messages.
 
 This module provides a plack debug panel that displays the Log4perl messages for your request.
 
-Create a Log4perl appender for your application using MemoryBuffer, and assign this to the Plack Environment Variable 'plack.middleware.debug.log4perl_debug_log'.
+Ideally configure Log4perl using Plack::Midleware::Log4perl, or directly in your .psgi file.  This way we can hook into the root logger at runtime and create the required stealth logger anuomatically.  You can skip the next bit.
+
+For application that configure their own logger, you must create a Log4perl appender using TestBuffer, named 'log4perl_debug_panel'.
 
 In your Log4perl.conf:
 
   log4perl.rootLogger = TRACE, DebugPanel
 
-  log4perl.appender.DebugPanel              = Log::Log4perl::Appender::MemoryBuffer
+  log4perl.appender.DebugPanel              = Log::Log4perl::Appender::TestBuffer
   log4perl.appender.DebugPanel.name         = psgi_debug_panel
   log4perl.appender.DebugPanel.mode         = append
   log4perl.appender.DebugPanel.layout       = PatternLayout
