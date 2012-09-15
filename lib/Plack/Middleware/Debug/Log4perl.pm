@@ -15,12 +15,12 @@ sub run
 {
 	my($self, $env, $panel) = @_;
 
-	if(Log::Log4perl->initialized() && !Log::Log4perl->appender_by_name('plack_debug_panel')) {
+	if(Log::Log4perl->initialized() && !(Log::Log4perl->appender_by_name('plack_debug_panel'))) {
 	
 	    my $logger = Log::Log4perl->get_logger("");
 	
 	    # Define a layout
-	    my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L >> ");
+	    my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L%n");
 	
 	    # Define an 'in memory' appender
 	    my $appender = Log::Log4perl::Appender->new(
@@ -31,8 +31,6 @@ sub run
 	
 		$logger->add_appender($appender);
 		$logger->level($TRACE);
-		
-		warn "test";
 	}
 
 	return sub {
@@ -44,14 +42,10 @@ sub run
 
 		if ($log) {
 
-			$log = [split " >> ", $log];
+			$log =~ s/ >> /\n/g;
+			my $list = [ split '\n', $log ];
 
-#			foreach my $line (@$log) {
-#				
-#				$line = [split ' >> ', $line];
-#			}
-#
-			$panel->content( sub { $self->render_list_pairs($log) } );
+			$panel->content( sub { $self->render_list_pairs($list) } );
 		}
 		else {
 
