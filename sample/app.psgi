@@ -24,6 +24,6 @@ my $app = sub {
 
 $app = builder {
     enable 'Debug', panels =>[qw/Response Memory Timer Log4perl/];
-	enable 'Log4perl', category => 'plack', conf => 'sample_log4perl.conf';
+	enable 'Log4perl', category => 'plack', conf => 'sample/log4perl.conf';
     $app;
 };
