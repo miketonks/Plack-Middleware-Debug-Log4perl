@@ -5,6 +5,8 @@ package Plack::Middleware::Debug::Log4perl;
 
 use parent qw(Plack::Middleware::Debug::Base);
 
+our $VERSION = '0.01';
+
 use Log::Log4perl qw(get_logger :levels);
 use Log::Log4perl::Layout;
 use Log::Log4perl::Level;

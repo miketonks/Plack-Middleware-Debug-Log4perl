@@ -5,7 +5,7 @@ use inc::Module::Install;
 name           'Plack-Middleware-Debug-Log4perl';
 
 author        'Mike Tonks <miket@cpan.org>';
-version       '0.01';
+version_from  'lib/Plack/Middleware/Debug/Log4perl.pm';
 license       'perl';
  
 # Specific dependencies
