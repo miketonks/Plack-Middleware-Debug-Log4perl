@@ -34,12 +34,13 @@ my $app = sub {
     ];
 };
 $app = builder {
-	enable 'Log4perl', category => 'plack', conf => \$log4perl_conf;
     enable 'Debug', panels =>[qw/Response Memory Timer Log4perl/];
+	enable 'Log4perl', category => 'plack', conf => \$log4perl_conf;
     $app;
 };
 test_psgi $app, sub {
     my $cb  = shift;
+
     my $res = $cb->(GET '/');
     is $res->code, 200, 'response status 200';
     for my $panel (qw/Response Memory Timer Log4perl/) {
@@ -47,10 +48,24 @@ test_psgi $app, sub {
           qr/<a href="#" title="$panel" class="plDebug${panel}\d+Panel">/,
           "HTML contains $panel panel";
     }
-    like $res->content, qr{<td>INFO</td>\s+<td>Starting Up</td>\s+<td>sample\.app</td>\s+<td>at t/03_web.t line 26</td>}, "HTML Containts 1st log line";
-    like $res->content, qr{<td>DEBUG</td>\s+<td>Testing \.\.\.\. \(1\)</td>\s+<td>sample\.app</td>\s+<td>at t/03_web.t line 28</td>}, "HTML Containts 2nd log line";
-    like $res->content, qr{<td>DEBUG</td>\s+<td>Testing \.\.\.\. \(10\)</td>\s+<td>sample\.app</td>\s+<td>at t/03_web.t line 28</td>}, "HTML Containts n-th log line";
-    like $res->content, qr{<td>INFO</td>\s+<td>All done here - thanks for vising</td>\s+<td>sample\.app</td>\s+<td>at t/03_web.t line 30</td>}, "HTML Containts last log line";
+    like $res->content, qr{<td>INFO</td>\s+<td>Starting Up</td>\s+<td>sample\.app</td>}, "HTML Containts 1st log line";
+    like $res->content, qr{<td>DEBUG</td>\s+<td>Testing \.\.\.\. \(1\)</td>\s+<td>sample\.app</td>}, "HTML Containts 2nd log line";
+    like $res->content, qr{<td>DEBUG</td>\s+<td>Testing \.\.\.\. \(10\)</td>\s+<td>sample\.app</td>}, "HTML Containts n-th log line";
+    like $res->content, qr{<td>INFO</td>\s+<td>All done here - thanks for vising</td>\s+<td>sample\.app</td>}, "HTML Containts last log line";
+
+	my @panel_html = $res->content =~ /<div id="plDebugLog4perl.+?<\/table>/sg;
+    my @panel_rows = $panel_html[0] =~ /<tr class="plDebug.+?<\/tr>/sg;
+    is(scalar @panel_rows, 12, "12 Log rows found");
+
+	# repeat a few more times to ensure we're resetting log each time
+	for my $i (1..3) {
+
+        my $res = $cb->(GET '/');
+
+	    my @panel_html = $res->content =~ /<div id="plDebugLog4perl.+?<\/table>/sg;
+        my @panel_rows = $panel_html[0] =~ /<tr class="plDebug.+?<\/tr>/sg;
+        is(scalar @panel_rows, 12, "12 Log rows found");
+    }
 };
 
 done_testing;

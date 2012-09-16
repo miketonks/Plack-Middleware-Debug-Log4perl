@@ -11,26 +11,41 @@ use Log::Log4perl::Level;
 
 use Data::Dumper;
 
+# let's try keeping a handle on the layout
+my $timer;
+
 sub run
 {
 	my($self, $env, $panel) = @_;
 
-	if(Log::Log4perl->initialized() && !(Log::Log4perl->appender_by_name('plack_debug_panel'))) {
-	
-	    my $logger = Log::Log4perl->get_logger("");
-	
-	    # Define a layout
-	    my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L%n");
-	
-	    # Define an 'in memory' appender
-	    my $appender = Log::Log4perl::Appender->new(
-	    	"Log::Log4perl::Appender::TestBuffer", 
-	    	name => "plack_debug_panel");
-	
-		$appender->layout($layout);
-	
-		$logger->add_appender($appender);
-		$logger->level($TRACE);
+	if(Log::Log4perl->initialized()) {
+				
+		if (my $appender = Log::Log4perl->appender_by_name('plack_debug_panel')) {
+
+			$appender->clear();
+
+			$timer->reset();
+		}
+		else {	
+
+		    my $logger = Log::Log4perl->get_logger("");
+
+		    # Define a layout
+		    my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L%n");
+
+		    # Define an 'in memory' appender
+		    my $appender = Log::Log4perl::Appender->new(
+		    	"Log::Log4perl::Appender::TestBuffer", 
+		    	name => "plack_debug_panel");
+
+			$appender->layout($layout);
+
+			$logger->add_appender($appender);
+			$logger->level($TRACE);
+
+			# hang on to the timer, so we can reset it
+			$timer = $layout->{timer};
+		}
 	}
 
 	return sub {
@@ -104,38 +119,46 @@ Plack debug panel to show detailed Log4perl debug messages.
 
 =head1 SYNOPSIS
 
-  use Plack::Builder;
-  use Plack::Middleware::Debug::Log4perl;
+    use Plack::Builder;
+    use Plack::Middleware::Debug::Log4perl;
 
-  builder {
-    enable 'Debug', panels => [qw/Memory Timer Log4perl/];
-	enable 'Log4perl', category => 'plack', conf => \$log4perl_conf;
-    $app;
-  };
+    builder {
+      enable 'Debug', panels => [qw/Memory Timer Log4perl/];
+      enable 'Log4perl', category => 'plack', conf => \$log4perl_conf;
+      $app;
+    };
 
 =head1 DESCRIPTION
 
 This module provides a plack debug panel that displays the Log4perl messages for your request.
 
-Ideally configure Log4perl using Plack::Midleware::Log4perl, or directly in your .psgi file.  This way we can hook into the root logger at runtime and create the required stealth logger anuomatically.  You can skip the next bit.
+Ideally configure Log4perl using Plack::Midleware::Log4perl, or directly in your .psgi file.  This way we can hook into the root logger at run time and create the required stealth logger automatically.  If you're able to do this, you can skip the next bit.
 
-For application that configure their own logger, you must create a Log4perl appender using TestBuffer, named 'log4perl_debug_panel'.
+For applications that configure / init their own logger, you must create a Log4perl appender using TestBuffer, named 'log4perl_debug_panel'.
 
 In your Log4perl.conf:
 
-  log4perl.rootLogger = TRACE, DebugPanel
+    log4perl.rootLogger = TRACE, DebugPanel
 
-  log4perl.appender.DebugPanel              = Log::Log4perl::Appender::TestBuffer
-  log4perl.appender.DebugPanel.name         = psgi_debug_panel
-  log4perl.appender.DebugPanel.mode         = append
-  log4perl.appender.DebugPanel.layout       = PatternLayout
-  log4perl.appender.DebugPanel.layout.ConversionPattern = %r >> %p >> %m >> %c >> at %F line %L%n
-  log4perl.appender.DebugPanel.Threshold = TRACE
+    log4perl.appender.DebugPanel              = Log::Log4perl::Appender::TestBuffer
+    log4perl.appender.DebugPanel.name         = psgi_debug_panel
+    log4perl.appender.DebugPanel.mode         = append
+    log4perl.appender.DebugPanel.layout       = PatternLayout
+    log4perl.appender.DebugPanel.layout.ConversionPattern = %r >> %p >> %m >> %c >> at %F line %L%n
+    log4perl.appender.DebugPanel.Threshold = TRACE
 
 =head1 SEE ALSO
 
-L<Plack::Middleware::Debug>
-L<Log::Log4perl>
+Log4perl: L<Log::Log4perl>
+
+Plack Debug Panel: L<Plack::Middleware::Debug>
+
+Source Repository: L<https://github.com/miketonks/Plack-Middleware-Debug-Log4perl>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 
