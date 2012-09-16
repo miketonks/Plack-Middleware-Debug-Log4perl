@@ -130,7 +130,7 @@ Plack debug panel to show detailed Log4perl debug messages.
 
 =head1 DESCRIPTION
 
-This module provides a plack debug panel that displays the Log4perl messages for your request.
+This module provides a plack debug panel that displays the Log4perl messages for the current HTTP request.
 
 Ideally configure Log4perl using Plack::Midleware::Log4perl, or directly in your .psgi file.  This way we can hook into the root logger at run time and create the required stealth logger automatically.  If you're able to do this, you can skip the next bit.
 
