@@ -9,7 +9,7 @@ use Plack::Middleware::Debug::Log4perl;
 use HTTP::Request::Common;
 use Test::More;
 
-my $content_type = 'text/html'; # ('text/html', 'text/html; charset=utf8',);
+my $content_type = 'text/html';
 
 
 note "Content-Type: $content_type";
