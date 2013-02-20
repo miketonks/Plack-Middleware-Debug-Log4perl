@@ -5,19 +5,33 @@ package Plack::Middleware::Debug::Log4perl;
 
 use parent qw(Plack::Middleware::Debug::Base);
 
+use Log::Log4perl;
+
+our $VERSION = '0.02';
+
 sub run
 {
 	my($self, $env, $panel) = @_;
 
+	# get root logger
+	my $logger = Log::Log4perl->get_logger("");
+
+	# setup appender
+	my $appender = Log::Log4perl::Appender->new(
+		"Log::Log4perl::Appender::TestBuffer",
+		name      => "psgi_debug_panel");
+
+	my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L%n");
+	$appender->layout($layout);
+	$logger->add_appender($appender);
+
 	return sub {
 		my $res = shift;
+		my $appender = Log::Log4perl->appenders()->{psgi_debug_panel};
 
-		#$panel->nav_subtitle('Debug');
+		if ($appender) {
 
-		my $log = $ENV{'plack.middleware.debug.log4perl_debug_log'};
-
-		if ($log) {
-
+			my $log = $appender->{appender}->{buffer};
 			$panel->content( sub { $self->render_list_pairs($log) } );
 		}
 		else {
@@ -60,7 +74,6 @@ sub render_list_pairs {
     my ($self, $list, $sections) = @_;
     if ($sections) {
         $self->render($list_template, { list => $list });
- #       $self->render($list_section_template, { list => $list, sections => $sections });
     }else{
         $self->render($list_template, { list => $list });
     }
