@@ -12,4 +12,8 @@ license       'perl';
 requires       'Log::Log4perl'  => 0;
 requires       'Plack::Middleware::Debug'  => 0;
 
+#manifest_skip;
+
+no_index directory => 'sample';
+
 WriteAll;
