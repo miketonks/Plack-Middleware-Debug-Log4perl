@@ -152,7 +152,13 @@ Log4perl: L<Log::Log4perl>
 
 Plack Debug Panel: L<Plack::Middleware::Debug>
 
-Source Repository: L<https://github.com/miketonks/Plack-Middleware-Debug-Log4perl>
+Source Repository: L<http://github.com/miketonks/Plack-Middleware-Debug-Log4perl>
+
+=head1 AUTHORS
+
+Mike Tonks
+
+Thanks to Lyle Hopkins (Bristol & Bath Perl Mongers) for help with the threading tests.
 
 =head1 LICENSE
 
