@@ -30,15 +30,15 @@ sub run
 		}
 		else {
 
-		    my $logger = Log::Log4perl->get_logger("");
+			my $logger = Log::Log4perl->get_logger("");
 
-		    # Define a layout
-		    my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L%n");
+			# Define a layout
+			my $layout = Log::Log4perl::Layout::PatternLayout->new("%r >> %p >> %m >> %c >> at %F line %L%n");
 
-		    # Define an 'in memory' appender
-		    my $appender = Log::Log4perl::Appender->new(
-		    	"Log::Log4perl::Appender::TestBuffer",
-		    	name => "psgi_debug_panel");
+			# Define an 'in memory' appender
+			my $appender = Log::Log4perl::Appender->new(
+				"Log::Log4perl::Appender::TestBuffer",
+				name => "psgi_debug_panel");
 
 			$appender->layout($layout);
 
@@ -64,7 +64,6 @@ sub run
 		}
 		else {
 
-			#return $panel->disable;
 			$panel->content( 'Log4perl appender not enabled' );
 		}
 	};

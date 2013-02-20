@@ -1,3 +1,4 @@
+*.tar.gz
 blib/
 .build/
 _build/
