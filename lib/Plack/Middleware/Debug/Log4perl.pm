@@ -20,7 +20,7 @@ sub run
 {
 	my($self, $env, $panel) = @_;
 
-	if(Log::Log4perl->initialized()) {
+	if (Log::Log4perl->initialized()) {
 
 		if (my $appender = Log::Log4perl->appender_by_name('psgi_debug_panel')) {
 
@@ -56,7 +56,6 @@ sub run
 		if (my $appender = Log::Log4perl->appenders()->{psgi_debug_panel}) {
 
 			my $log = $appender->{appender}->{buffer};
-			$panel->content( sub { $self->render_list_pairs($log) } );
 
 			$log =~ s/ >> /\n/g;
 			my $list = [ split '\n', $log ];
