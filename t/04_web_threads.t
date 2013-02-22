@@ -9,6 +9,14 @@ use Plack::Middleware::Debug::Log4perl;
 use Plack::Request;
 use HTTP::Request::Common;
 
+BEGIN {
+  use Config;
+  if (! $Config{'useithreads'}) {
+    print("1..0 # Skip: Perl not compiled with 'useithreads'\n");
+    exit(0);
+  }
+}
+
 # Test::More will only be aware of threads if "use threads" has been done before Test::More is loaded.
 use threads;
 use Test::More;
@@ -65,13 +73,13 @@ $app = builder {
 sub run_app {
 	# pass in an identifier so we can check each running app is different
 	my $test_id = shift;
-	
+
 	test_psgi $app, sub {
 	    my $cb  = shift;
-	
+
 	    my $res = $cb->(GET "/?id=$test_id");
 	    is $res->code, 200, 'response status 200';
-	    
+
 	    # examine the html that comes back
 	    # check we have the 4 panels as expected
 	    for my $panel (qw/Response Memory Timer Log4perl/) {
@@ -84,7 +92,7 @@ sub run_app {
 	    like $res->content, qr{<td>DEBUG</td>\s+<td>Testing \.\.\.\. \(1\) \[test_id: $test_id\]</td>\s+<td>sample\.app</td>}, "HTML Containts 2nd log line";
 	    like $res->content, qr{<td>DEBUG</td>\s+<td>Testing \.\.\.\. \(10\) \[test_id: $test_id\]</td>\s+<td>sample\.app</td>}, "HTML Containts n-th log line";
 	    like $res->content, qr{<td>INFO</td>\s+<td>All done here - thanks for visiting \[test_id: $test_id\]</td>\s+<td>sample\.app</td>}, "HTML Containts last log line";
-	
+
 		# check we have the correct number of log lines
 		my @panel_html = $res->content =~ /<div id="plDebugLog4perl.+?<\/table>/sg;
 	    my @panel_rows = $panel_html[0] =~ /<tr class="plDebug.+?<\/tr>/sg;
